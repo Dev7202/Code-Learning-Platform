@@ -4,8 +4,12 @@ import 'dotenv/config';
 import app from './src/app.js';
 import connectDb from './src/config/connectDB.js';
 import { verifyEmailTransporter } from './src/config/mailer.js';
+import {generateWithGemini} from './src/utils/generate.js';
 
 const port = process.env.PORT || 4000;
+
+const res = await generateWithGemini('What is the capital of France?');
+console.log('Gemini Response:', res);
 
 const startServer = async () => {
     try {
