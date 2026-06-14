@@ -4,7 +4,8 @@ import NoteModel from '../models/NoteModel.js';
 import QuizModel from '../models/QuizModel.js';
 
 import { generateWithGemini } from '../utils/generate.js';
-import { getRoadmapPrompt, getTopicGuardPrompt , quizPrompt } from '../utils/prompt.js';
+import { getRoadmapPrompt, getTopicGuardPrompt, quizPrompt, getSubtopicSummaryPrompt } 
+from '../utils/prompt.js';
 import { getArticles , getVideos} from '../utils/search.js' ;
 
 
@@ -240,6 +241,53 @@ export const getQuizzes = async (req, res) => {
         const { roadmapId, chapterId, subtopicId } = req.body;
         const quizzes = await QuizModel.find({ email: req.email, roadmapId, chapterId, subtopicId });
         return res.status(200).json({ success: true, data: quizzes });
+    } catch (error) {
+        return res.status(500).json({ success: false, message: error.message });
+    }
+};
+
+
+//---------------------------------------------------------------------------
+
+
+
+// --- Generate Subtopic Summary --------------------------------------------
+
+export const generateSubtopicSummary = async (req, res) => {
+    try {
+        const { roadmapId, chapterId, subtopicId, personalization = '' } = req.body;
+        const roadmap = await RoadmapModel.findById(roadmapId);
+        if (!roadmap) return res.status(404).json({ success: false, message: 'Roadmap not found' });
+
+        const chIdx = parseInt(chapterId) - 1;
+        const stIdx = parseInt(subtopicId) - 1;
+        const chapterTitle  = roadmap.roadmapData.chapters[chIdx].title;
+        const subtopicTitle = roadmap.roadmapData.chapters[chIdx].subtopics[stIdx].title;
+
+        const summary = await generateWithGemini(
+            getSubtopicSummaryPrompt(subtopicTitle, roadmap.roadmapData.title, chapterTitle, personalization)
+        );
+
+        roadmap.roadmapData.chapters[chIdx].subtopics[stIdx].detailedExplanation = summary;
+        roadmap.markModified('roadmapData');
+        await roadmap.save();
+
+        return res.status(200).json({ success: true, summary, message: 'Summary generated' });
+    } catch (error) {
+        return res.status(500).json({ success: false, message: error.message });
+    }
+};
+
+// --- Fetch Subtopic Explanations -----------------------------------
+
+export const fetchSubtopicExplanation = async (req, res) => {
+    try {
+        const roadmap = await RoadmapModel.findById(req.body.roadmapId);
+        const data = {};
+        for (const ch of roadmap.roadmapData.chapters)
+            for (const st of ch.subtopics)
+                data[`${ch.id}:${st.id}`] = st.detailedExplanation || '';
+        return res.status(200).json({ success: true, data });
     } catch (error) {
         return res.status(500).json({ success: false, message: error.message });
     }
