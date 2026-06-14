@@ -1,10 +1,15 @@
 import RoadmapModel from '../models/RoadmapModel.js';
 import UserModel from '../models/UserModel.js';
+import NoteModel from '../models/NoteModel.js';
+import QuizModel from '../models/QuizModel.js';
+
 import { generateWithGemini } from '../utils/generate.js';
-import { getRoadmapPrompt, getTopicGuardPrompt } from '../utils/prompt.js';
+import { getRoadmapPrompt, getTopicGuardPrompt , quizPrompt } from '../utils/prompt.js';
 import { getArticles , getVideos} from '../utils/search.js' ;
 
-// ─── Generate Roadmap ─────────────────────────────────────────
+
+// --- Generate Roadmap ----------------------------------------------
+
 export const generateRoadmap = async (req, res) => {
     try {
         const { userDescription, userLevel } = req.validatedData;
@@ -45,7 +50,8 @@ export const generateRoadmap = async (req, res) => {
     }
 };
 
-// ─── Get All Roadmaps ─────────────────────────────────────────
+// --- Get All Roadmaps --------------------------------------------
+
 export const getUserRoadmaps = async (req, res) => {
     try {
         const roadmaps = await RoadmapModel.find({ email: req.email }).sort({ isPinned: -1, createdAt: -1 });
@@ -55,7 +61,8 @@ export const getUserRoadmaps = async (req, res) => {
     }
 };
 
-// ─── Get Roadmap By ID ────────────────────────────────────────
+// --- Get Roadmap By ID ----------------------------------------------
+
 export const getRoadmapById = async (req, res) => {
     try {
         const roadmap = await RoadmapModel.findById(req.body.roadmapId);
@@ -66,7 +73,8 @@ export const getRoadmapById = async (req, res) => {
     }
 };
 
-// ─── Delete Roadmap ───────────────────────────────────────────
+// --- Delete Roadmap -----------------------------------------------
+
 export const deleteRoadmap = async (req, res) => {
     try {
         const { roadmapId } = req.body;
@@ -80,7 +88,8 @@ export const deleteRoadmap = async (req, res) => {
     }
 };
 
-// ─── Toggle Pin ───────────────────────────────────────────────
+// --- Toggle Pin ----------------------------------------------------
+
 export const togglePinRoadmap = async (req, res) => {
     try {
         const roadmap = await RoadmapModel.findOne({ _id: req.body.roadmapId, email: req.email });
@@ -93,7 +102,8 @@ export const togglePinRoadmap = async (req, res) => {
     }
 };
 
-// ─── Search Roadmaps ──────────────────────────────────────────
+// --- Search Roadmaps ---------------------------------------------
+
 export const searchRoadmaps = async (req, res) => {
     try {
         const q = (req.query.q || '').trim();
@@ -123,6 +133,113 @@ export const searchRoadmaps = async (req, res) => {
         }
 
         return res.status(200).json({ success: true, data: results });
+    } catch (error) {
+        return res.status(500).json({ success: false, message: error.message });
+    }
+};
+
+
+//-------------------------------------------------------------------------------------------
+
+
+
+// --- Save Note ------------------------------------------------------
+
+export const saveNote = async (req, res) => {
+    try {
+        const { roadmapId, subtopicId, moduleId, content } = req.body;
+        const note = await NoteModel.findOneAndUpdate(
+            { userId: req.userId, roadmapId, subtopicId, moduleId },
+            { userId: req.userId, roadmapId, subtopicId, moduleId, content },
+            { new: true, upsert: true }
+        );
+        return res.status(200).json({ success: true, data: note, message: 'Note saved' });
+    } catch (error) {
+        return res.status(500).json({ success: false, message: error.message });
+    }
+};
+
+// --- Get Notes -----------------------------------------------------
+
+export const getNotesForRoadmap = async (req, res) => {
+    try {
+        const notes = await NoteModel.find({ userId: req.userId, roadmapId: req.params.roadmapId });
+        const notesMap = notes.reduce((acc, note) => {
+            acc[`${note.moduleId}:${note.subtopicId}`] = note.content;
+            return acc;
+        }, {});
+        return res.status(200).json({ success: true, data: notesMap });
+    } catch (error) {
+        return res.status(500).json({ success: false, message: error.message });
+    }
+};
+
+// --- Save Progress -------------------------------------------------
+
+export const saveProgress = async (req, res) => {
+    try {
+        const { roadmapId, chapterId, subtopicId } = req.body;
+        const roadmap = await RoadmapModel.findById(roadmapId);
+        const current = roadmap.roadmapData.chapters[chapterId - 1].subtopics[subtopicId - 1].completed;
+        roadmap.roadmapData.chapters[chapterId - 1].subtopics[subtopicId - 1].completed = !current;
+        roadmap.markModified('roadmapData');
+        await roadmap.save();
+        return res.status(200).json({ success: true, data: roadmap, message: 'Progress saved' });
+    } catch (error) {
+        return res.status(500).json({ success: false, message: error.message });
+    }
+};
+
+// --- Fetch Progress ------------------------------------------------
+
+export const fetchProgress = async (req, res) => {
+    try {
+        const roadmap = await RoadmapModel.findById(req.body.roadmapId);
+        const progressData = [];
+        for (const chapter of roadmap.roadmapData.chapters)
+            for (const subtopic of chapter.subtopics)
+                if (subtopic.completed) progressData.push(`${chapter.id}:${subtopic.id}`);
+        return res.status(200).json({ success: true, data: progressData });
+    } catch (error) {
+        return res.status(500).json({ success: false, message: error.message });
+    }
+};
+
+// --- Generate Quiz ----------------------------------------------
+
+export const generateQuiz = async (req, res) => {
+    try {
+        const { roadmapId, chapterId, subtopicId = null } = req.body;
+        if (!roadmapId || !chapterId)
+            return res.status(400).json({ success: false, message: 'roadmapId and chapterId are required' });
+
+        const roadmap = await RoadmapModel.findById(roadmapId);
+        if (!roadmap) return res.status(404).json({ success: false, message: 'Roadmap not found' });
+
+        const raw = await generateWithGemini(quizPrompt(roadmap, chapterId, subtopicId));
+        const cleaned = raw.replace(/```json/gi, '').replace(/```/g, '').trim();
+        let quizJson;
+        try { quizJson = JSON.parse(cleaned); }
+        catch { return res.status(500).json({ success: false, message: 'Failed to parse quiz' }); }
+
+        await QuizModel.create({
+            email: req.email, roadmapId, chapterId,
+            subtopicId: subtopicId || 'general', quiz: quizJson,
+        });
+
+        return res.status(200).json({ success: true, data: quizJson, message: 'Quiz generated' });
+    } catch (error) {
+        return res.status(500).json({ success: false, message: error.message });
+    }
+};
+
+// --- Get Quizzes -------------------------------------------------
+
+export const getQuizzes = async (req, res) => {
+    try {
+        const { roadmapId, chapterId, subtopicId } = req.body;
+        const quizzes = await QuizModel.find({ email: req.email, roadmapId, chapterId, subtopicId });
+        return res.status(200).json({ success: true, data: quizzes });
     } catch (error) {
         return res.status(500).json({ success: false, message: error.message });
     }
