@@ -2,6 +2,7 @@ import RoadmapModel from '../models/RoadmapModel.js';
 import UserModel from '../models/UserModel.js';
 import { generateWithGemini } from '../utils/generate.js';
 import { getRoadmapPrompt, getTopicGuardPrompt } from '../utils/prompt.js';
+import { getArticles , getVideos} from '../utils/search.js' ;
 
 // ─── Generate Roadmap ─────────────────────────────────────────
 export const generateRoadmap = async (req, res) => {
@@ -25,6 +26,9 @@ export const generateRoadmap = async (req, res) => {
         } catch {
             return res.status(500).json({ success: false, message: 'Failed to parse AI response.' });
         }
+
+        roadmapData.articles = await getArticles(roadmapData);
+        roadmapData.videos   = await getVideos(roadmapData);
 
         const user = await UserModel.findById(userId);
         if (!user) return res.status(404).json({ success: false, message: 'User not found' });
