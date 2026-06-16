@@ -1,5 +1,7 @@
 // start the server
 
+import dns from 'node:dns'; dns.setServers(['1.1.1.1', '8.8.8.8']);
+
 import 'dotenv/config';
 import app from './src/app.js';
 import connectDb from './src/config/connectDB.js';
