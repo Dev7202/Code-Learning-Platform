@@ -1,6 +1,8 @@
-import { Code, Zap, ArrowRight, Brain, BookOpen, Terminal } from 'lucide-react';
+import { Zap, ArrowRight, Brain, BookOpen, Terminal } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { useSelector } from 'react-redux';
+import Navbar from '../components/Navbar';
+import Footer from '../components/Footer';
 
 export default function Home() {
     const { isLoggedin } = useSelector(state => state.user);
@@ -14,27 +16,7 @@ export default function Home() {
     return (
         <div className="min-h-screen bg-linear-to-br from-blue-900 via-slate-900 to-black text-white">
 
-            {/* Navbar */}
-            <nav className="fixed top-0 inset-x-0 z-50 bg-slate-900/80 backdrop-blur-xl border-b border-slate-700/50">
-                <div className="max-w-7xl mx-auto px-4 py-3 flex items-center justify-between">
-                    <div className="flex items-center gap-2">
-                        <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center">
-                            <Code className="w-5 h-5 text-white" />
-                        </div>
-                        <span className="text-white font-bold text-lg">CodeLearn</span>
-                    </div>
-                    <div className="flex items-center gap-3">
-                        {isLoggedin ? (
-                            <Link to="/roadmaps" className="px-4 py-2 text-sm bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">Dashboard</Link>
-                        ) : (
-                            <>
-                                <Link to="/signin" className="px-4 py-2 text-sm text-gray-300 hover:text-white transition-colors">Sign In</Link>
-                                <Link to="/signup" className="px-4 py-2 text-sm bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">Sign Up</Link>
-                            </>
-                        )}
-                    </div>
-                </div>
-            </nav>
+            <Navbar />
 
             {/* Hero Section */}
             <section className="pt-32 pb-20 px-4 text-center">
@@ -97,10 +79,7 @@ export default function Home() {
                 </div>
             </section>
 
-            {/* Footer */}
-            <footer className="border-t border-slate-700/50 py-8 px-4 text-center text-slate-400 text-sm">
-                <p>© 2025 CodeLearn. All rights reserved.</p>
-            </footer>
+            <Footer />
         </div>
     );
 }

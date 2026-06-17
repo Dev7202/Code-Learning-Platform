@@ -1,8 +1,9 @@
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 import { Toaster } from 'react-hot-toast';
 import { useDispatch, useSelector } from 'react-redux';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { checkAuth } from './features/userSlicer';
+import { fetchUserRoadmaps } from './features/roadmapSlicer';
 import ProtectedRoute from './components/ProtectedRoute';
 import GuestRoute from './components/GuestRoute';
 import Loader from './components/Loader';
@@ -11,16 +12,31 @@ import Home from './pages/Home';
 import Signin from './pages/Signin';
 import Signup from './pages/Signup';
 import ResetPassword from './pages/ResetPassword';
+import Roadmaps from './pages/Roadmaps';
 
 function App() {
     const dispatch = useDispatch();
-    const { authLoading } = useSelector(state => state.user);
+    const { authLoading, isLoggedin } = useSelector(state => state.user);
+    const [forceShow, setForceShow] = useState(false);
 
     useEffect(() => {
-        dispatch(checkAuth());
+        const load = async () => {
+            await dispatch(checkAuth());
+        };
+        load();
+
+        const timer = setTimeout(() => setForceShow(true), 3000);
+        return () => clearTimeout(timer);
     }, [dispatch]);
 
-    if (authLoading) return <Loader />;
+    // Fetch roadmaps once user is logged in
+    useEffect(() => {
+        if (isLoggedin) {
+            dispatch(fetchUserRoadmaps());
+        }
+    }, [isLoggedin]);
+
+    if (authLoading && !forceShow) return <Loader />;
 
     return (
         <>
@@ -28,13 +44,10 @@ function App() {
             <Router>
                 <Routes>
                     <Route path="/" element={<Home />} />
-
-                    {/* GuestRoute → only accessible when NOT logged in */}
                     <Route path="/signin" element={<GuestRoute><Signin /></GuestRoute>} />
                     <Route path="/signup" element={<GuestRoute><Signup /></GuestRoute>} />
-
-                    {/* Reset password is accessible by anyone */}
                     <Route path="/reset-password" element={<ResetPassword />} />
+                    <Route path="/roadmaps" element={<ProtectedRoute><Roadmaps /></ProtectedRoute>} />
                 </Routes>
             </Router>
         </>
