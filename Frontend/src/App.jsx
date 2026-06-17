@@ -6,20 +6,20 @@ import { checkAuth } from './features/userSlicer';
 import ProtectedRoute from './components/ProtectedRoute';
 import GuestRoute from './components/GuestRoute';
 import Loader from './components/Loader';
+
 import Home from './pages/Home';
+import Signin from './pages/Signin';
+import Signup from './pages/Signup';
+import ResetPassword from './pages/ResetPassword';
 
 function App() {
-
     const dispatch = useDispatch();
     const { authLoading } = useSelector(state => state.user);
 
-    // Check if user is logged in when app first loads
     useEffect(() => {
         dispatch(checkAuth());
     }, [dispatch]);
-    
 
-    // Show loader while checking auth
     if (authLoading) return <Loader />;
 
     return (
@@ -28,7 +28,13 @@ function App() {
             <Router>
                 <Routes>
                     <Route path="/" element={<Home />} />
-                    
+
+                    {/* GuestRoute → only accessible when NOT logged in */}
+                    <Route path="/signin" element={<GuestRoute><Signin /></GuestRoute>} />
+                    <Route path="/signup" element={<GuestRoute><Signup /></GuestRoute>} />
+
+                    {/* Reset password is accessible by anyone */}
+                    <Route path="/reset-password" element={<ResetPassword />} />
                 </Routes>
             </Router>
         </>

@@ -12,7 +12,7 @@ export default function Home() {
     ];
 
     return (
-        <div className="min-h-screen bg-gradient-to-br from-blue-900 via-slate-900 to-black text-white">
+        <div className="min-h-screen bg-linear-to-br from-blue-900 via-slate-900 to-black text-white">
 
             {/* Navbar */}
             <nav className="fixed top-0 inset-x-0 z-50 bg-slate-900/80 backdrop-blur-xl border-b border-slate-700/50">
@@ -44,7 +44,7 @@ export default function Home() {
                         <span className="text-sm text-blue-300 font-medium">AI-Powered Learning Platform</span>
                     </div>
                     <h1 className="text-5xl sm:text-7xl font-bold leading-tight">
-                        <span className="bg-gradient-to-r from-blue-400 via-blue-300 to-white bg-clip-text text-transparent">
+                        <span className="bg-linear-to-r from-blue-400 via-blue-300 to-white bg-clip-text text-transparent">
                             AI-Powered Roadmaps
                         </span>
                         <br />

@@ -87,12 +87,15 @@ export const userSlice = createSlice({
     extraReducers: builder => {
         builder
             // When signin succeeds → store user data
-            .addCase(signinUser.fulfilled, (state, action) => {
-                state.isLoggedin = true;
-                state.username = action.payload.user.name;
-                state.email = action.payload.user.email;
-                state.avatar = action.payload.user.avatar || '';
-            })
+           .addCase(signinUser.fulfilled, (state, action) => {
+    const user = action.payload?.user;
+    if (user) {
+        state.isLoggedin = true;
+        state.username = user.name || '';
+        state.email = user.email || '';
+        state.avatar = user.avatar || '';
+    }
+})
             // When logout succeeds → clear user data
             .addCase(logoutUser.fulfilled, state => {
                 state.isLoggedin = false;
@@ -106,12 +109,17 @@ export const userSlice = createSlice({
             })
             // When auth check succeeds → store user data
             .addCase(checkAuth.fulfilled, (state, action) => {
-                state.authLoading = false;
-                state.isLoggedin = true;
-                state.username = action.payload.user.name;
-                state.email = action.payload.user.email;
-                state.avatar = action.payload.user.avatar || '';
-            })
+        state.authLoading = false;
+    const user = action.payload?.user;
+    if (user) {
+        state.isLoggedin = true;
+        state.username = user.name || '';
+        state.email = user.email || '';
+        state.avatar = user.avatar || '';
+    } else {
+        state.isLoggedin = false;
+    }
+})
             // When auth check fails → user is not logged in
             .addCase(checkAuth.rejected, state => {
                 state.authLoading = false;
