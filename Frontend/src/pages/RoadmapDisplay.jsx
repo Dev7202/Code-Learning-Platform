@@ -5,7 +5,7 @@ import toast from 'react-hot-toast';
 import {
     ChevronDown, ChevronUp, CheckCircle, Circle,
     ExternalLink, Play, BookOpen, Loader2,
-    MessageSquare, Brain, FileText
+    MessageSquare, Brain, FileText, X
 } from 'lucide-react';
 import Navbar from '../components/Navbar';
 import {
@@ -347,110 +347,140 @@ export default function RoadmapDisplay() {
                 </div>
             </div>
 
-            {/* ─── Note Modal ─────────────────────────────────── */}
-            {noteModal && (
-                <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-4">
-                    <div className="bg-slate-900 border border-slate-700 rounded-2xl p-6 w-full max-w-lg">
-                        <h3 className="text-lg font-semibold mb-4">Notes</h3>
-                        <textarea value={noteContent} onChange={e => setNoteContent(e.target.value)}
-                            rows={8} placeholder="Write your notes here..."
-                            className="w-full bg-slate-800 border border-slate-700 rounded-xl p-3 text-white placeholder:text-slate-500 focus:outline-none focus:border-blue-500 resize-none text-sm" />
-                        <div className="flex gap-3 mt-4">
-                            <button onClick={handleSaveNote}
-                                className="flex-1 py-2.5 bg-blue-600 rounded-xl font-semibold text-sm hover:bg-blue-700 transition-colors">
-                                Save Note
-                            </button>
-                            <button onClick={() => setNoteModal(null)}
-                                className="flex-1 py-2.5 bg-slate-700 rounded-xl font-semibold text-sm hover:bg-slate-600 transition-colors">
-                                Cancel
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            )}
+          {/* ─── Note Modal ─────────────────────────────────── */}
+{noteModal && (
+    <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-4">
+        <div className="bg-slate-900 border border-slate-700 rounded-2xl p-6 w-full max-w-lg">
 
-            {/* ─── Summary Modal ───────────────────────────────── */}
-            {summaryModal && (
-                <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-4">
-                    <div className="bg-slate-900 border border-slate-700 rounded-2xl p-6 w-full max-w-2xl max-h-[80vh] overflow-y-auto">
-                        <h3 className="text-lg font-semibold mb-4">AI Summary</h3>
-                        <div className="text-slate-300 text-sm leading-relaxed whitespace-pre-wrap">
-                            {summaryContent}
-                        </div>
-                        <button onClick={() => setSummaryModal(null)}
-                            className="mt-6 w-full py-2.5 bg-slate-700 rounded-xl font-semibold text-sm hover:bg-slate-600 transition-colors">
-                            Close
-                        </button>
-                    </div>
-                </div>
-            )}
+            {/* Header with X */}
+            <div className="flex items-center justify-between mb-4">
+                <h3 className="text-lg font-semibold">Notes</h3>
+                <button onClick={() => setNoteModal(null)}
+                    className="p-1.5 text-slate-400 hover:text-white hover:bg-slate-700 rounded-lg transition-colors">
+                    <X className="h-5 w-5" />
+                </button>
+            </div>
+
+            <textarea value={noteContent} onChange={e => setNoteContent(e.target.value)}
+                rows={8} placeholder="Write your notes here..."
+                className="w-full bg-slate-800 border border-slate-700 rounded-xl p-3 text-white placeholder:text-slate-500 focus:outline-none focus:border-blue-500 resize-none text-sm" />
+            <div className="flex gap-3 mt-4">
+                <button onClick={handleSaveNote}
+                    className="flex-1 py-2.5 bg-blue-600 rounded-xl font-semibold text-sm hover:bg-blue-700 transition-colors">
+                    Save Note
+                </button>
+                <button onClick={() => setNoteModal(null)}
+                    className="flex-1 py-2.5 bg-slate-700 rounded-xl font-semibold text-sm hover:bg-slate-600 transition-colors">
+                    Cancel
+                </button>
+            </div>
+        </div>
+    </div>
+)}
+
+{/* ─── Summary Modal ───────────────────────────────── */}
+{summaryModal && (
+    <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-4">
+        <div className="bg-slate-900 border border-slate-700 rounded-2xl p-6 w-full max-w-2xl max-h-[80vh] overflow-y-auto">
+
+            {/* Header with X */}
+            <div className="flex items-center justify-between mb-4">
+                <h3 className="text-lg font-semibold">AI Summary</h3>
+                <button onClick={() => setSummaryModal(null)}
+                    className="p-1.5 text-slate-400 hover:text-white hover:bg-slate-700 rounded-lg transition-colors">
+                    <X className="h-5 w-5" />
+                </button>
+            </div>
+
+            <div className="text-slate-300 text-sm leading-relaxed whitespace-pre-wrap">
+                {summaryContent}
+            </div>
+            <button onClick={() => setSummaryModal(null)}
+                className="mt-6 w-full py-2.5 bg-slate-700 rounded-xl font-semibold text-sm hover:bg-slate-600 transition-colors">
+                Close
+            </button>
+        </div>
+    </div>
+)}
+
+        
 
             {/* ─── Quiz Modal ──────────────────────────────────── */}
-            {quizModal && (() => {
-                const questions = quizModal.quiz?.quiz || quizModal.quiz || [];
-                return (
-                    <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-4">
-                        <div className="bg-slate-900 border border-slate-700 rounded-2xl p-6 w-full max-w-2xl max-h-[85vh] overflow-y-auto">
-                            <h3 className="text-lg font-semibold mb-6">Quiz</h3>
-                            <div className="space-y-6">
-                                {questions.map((q, i) => (
-                                    <div key={i} className="space-y-3">
-                                        <p className="font-medium text-sm">{i + 1}. {q.question}</p>
-                                        <div className="space-y-2">
-                                            {['a', 'b', 'c', 'd'].map(opt => (
-                                                <button key={opt}
-                                                    onClick={() => !quizSubmitted && setQuizAnswers(p => ({ ...p, [i]: opt }))}
-                                                    className={`w-full text-left px-4 py-2.5 rounded-xl text-sm border transition-all ${
-                                                        quizSubmitted
-                                                            ? opt === q.correctAnswer
-                                                                ? 'border-green-500 bg-green-500/20 text-green-300'
-                                                                : quizAnswers[i] === opt
-                                                                    ? 'border-red-500 bg-red-500/20 text-red-300'
-                                                                    : 'border-slate-700 text-slate-400'
-                                                            : quizAnswers[i] === opt
-                                                                ? 'border-blue-500 bg-blue-500/20 text-white'
-                                                                : 'border-slate-700 text-slate-300 hover:border-slate-600'
-                                                    }`}>
-                                                    <span className="font-medium uppercase">{opt}.</span> {q.options?.[opt]}
-                                                </button>
-                                            ))}
-                                        </div>
-                                        {quizSubmitted && q.explanation && (
-                                            <p className="text-xs text-slate-400 bg-slate-800 rounded-lg p-3">
-                                                {q.explanation}
-                                            </p>
-                                        )}
-                                    </div>
-                                ))}
+{quizModal && (() => {
+    const questions = quizModal.quiz?.quiz || quizModal.quiz || [];
+    return (
+        <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-4">
+            <div className="bg-slate-900 border border-slate-700 rounded-2xl p-6 w-full max-w-2xl max-h-[85vh] overflow-y-auto">
 
-                                {!quizSubmitted ? (
-                                    <button
-                                        onClick={() => setQuizSubmitted(true)}
-                                        disabled={Object.keys(quizAnswers).length < questions.length}
-                                        className="w-full py-3 bg-blue-600 rounded-xl font-semibold text-sm hover:bg-blue-700 transition-colors disabled:opacity-50">
-                                        Submit Quiz
+                {/* Header with X button */}
+                <div className="flex items-center justify-between mb-6">
+                    <h3 className="text-lg font-semibold">Quiz</h3>
+                    <button onClick={() => setQuizModal(null)}
+                        className="p-1.5 text-slate-400 hover:text-white hover:bg-slate-700 rounded-lg transition-colors">
+                        <X className="h-5 w-5" />
+                    </button>
+                </div>
+
+                <div className="space-y-6">
+                    {questions.map((q, i) => (
+                        <div key={i} className="space-y-3">
+                            <p className="font-medium text-sm">{i + 1}. {q.question}</p>
+                            <div className="space-y-2">
+                                {['a', 'b', 'c', 'd'].map(opt => (
+                                    <button key={opt}
+                                        onClick={() => !quizSubmitted && setQuizAnswers(p => ({ ...p, [i]: opt }))}
+                                        className={`w-full text-left px-4 py-2.5 rounded-xl text-sm border transition-all ${
+                                            quizSubmitted
+                                                ? opt === q.correctAnswer
+                                                    ? 'border-green-500 bg-green-500/20 text-green-300'
+                                                    : quizAnswers[i] === opt
+                                                        ? 'border-red-500 bg-red-500/20 text-red-300'
+                                                        : 'border-slate-700 text-slate-400'
+                                                : quizAnswers[i] === opt
+                                                    ? 'border-blue-500 bg-blue-500/20 text-white'
+                                                    : 'border-slate-700 text-slate-300 hover:border-slate-600'
+                                        }`}>
+                                        <span className="font-medium uppercase">{opt}.</span> {q.options?.[opt]}
                                     </button>
-                                ) : (
-                                    <div className="text-center py-4">
-                                        <p className="text-2xl font-bold mb-1">
-                                            {getScore()} / {questions.length}
-                                        </p>
-                                        <p className="text-slate-400 text-sm mb-4">
-                                            {getScore() === questions.length ? '🎉 Perfect score!'
-                                                : getScore() >= questions.length / 2 ? '👍 Good job!'
-                                                : '📚 Keep studying!'}
-                                        </p>
-                                        <button onClick={() => setQuizModal(null)}
-                                            className="px-6 py-2.5 bg-slate-700 rounded-xl font-semibold text-sm hover:bg-slate-600 transition-colors">
-                                            Close
-                                        </button>
-                                    </div>
-                                )}
+                                ))}
                             </div>
+                            {quizSubmitted && q.explanation && (
+                                <p className="text-xs text-slate-400 bg-slate-800 rounded-lg p-3">
+                                    {q.explanation}
+                                </p>
+                            )}
                         </div>
-                    </div>
-                );
-            })()}
+                    ))}
+
+                    {!quizSubmitted ? (
+                        <button onClick={() => setQuizSubmitted(true)}
+                            disabled={Object.keys(quizAnswers).length < questions.length}
+                            className="w-full py-3 bg-blue-600 rounded-xl font-semibold text-sm hover:bg-blue-700 transition-colors disabled:opacity-50">
+                            Submit Quiz
+                        </button>
+                    ) : (
+                        <div className="text-center py-4">
+                            <p className="text-2xl font-bold mb-1">
+                                {getScore()} / {questions.length}
+                            </p>
+                            <p className="text-slate-400 text-sm mb-4">
+                                {getScore() === questions.length ? '🎉 Perfect score!'
+                                    : getScore() >= questions.length / 2 ? '👍 Good job!'
+                                    : '📚 Keep studying!'}
+                            </p>
+                            <button onClick={() => setQuizModal(null)}
+                                className="px-6 py-2.5 bg-slate-700 rounded-xl font-semibold text-sm hover:bg-slate-600 transition-colors">
+                                Close
+                            </button>
+                        </div>
+                    )}
+                </div>
+            </div>
+        </div>
+    );
+})()}
+
+
         </div>
     );
 }

@@ -3,7 +3,7 @@ import UserModel from '../models/UserModel.js';
 import NoteModel from '../models/NoteModel.js';
 import QuizModel from '../models/QuizModel.js';
 
-import { generateWithGemini } from '../utils/generate.js';
+import { generateWithGroq } from '../utils/generate.js';
 import { getRoadmapPrompt, getTopicGuardPrompt, quizPrompt, getSubtopicSummaryPrompt } 
 from '../utils/prompt.js';
 import { getArticles , getVideos} from '../utils/search.js' ;
@@ -17,13 +17,13 @@ export const generateRoadmap = async (req, res) => {
         const userId = req.userId;
 
         // Topic guard
-        const guardResult = await generateWithGemini(getTopicGuardPrompt(userDescription));
+        const guardResult = await generateWithGroq(getTopicGuardPrompt(userDescription));
         if (guardResult.trim().toLowerCase() !== 'true') {
             return res.status(400).json({ success: false, message: 'Topic must be related to programming or technology.' });
         }
 
         const prompt = `${getRoadmapPrompt(userDescription)}\n\nTailor this roadmap for a ${userLevel} level learner.`;
-        const responseText = await generateWithGemini(prompt);
+        const responseText = await generateWithGroq(prompt);
 
         let roadmapData;
         try {
@@ -217,7 +217,7 @@ export const generateQuiz = async (req, res) => {
         const roadmap = await RoadmapModel.findById(roadmapId);
         if (!roadmap) return res.status(404).json({ success: false, message: 'Roadmap not found' });
 
-        const raw = await generateWithGemini(quizPrompt(roadmap, chapterId, subtopicId));
+        const raw = await generateWithGroq(quizPrompt(roadmap, chapterId, subtopicId));
         const cleaned = raw.replace(/```json/gi, '').replace(/```/g, '').trim();
         let quizJson;
         try { quizJson = JSON.parse(cleaned); }
@@ -264,7 +264,7 @@ export const generateSubtopicSummary = async (req, res) => {
         const chapterTitle  = roadmap.roadmapData.chapters[chIdx].title;
         const subtopicTitle = roadmap.roadmapData.chapters[chIdx].subtopics[stIdx].title;
 
-        const summary = await generateWithGemini(
+        const summary = await generateWithGroq(
             getSubtopicSummaryPrompt(subtopicTitle, roadmap.roadmapData.title, chapterTitle, personalization)
         );
 

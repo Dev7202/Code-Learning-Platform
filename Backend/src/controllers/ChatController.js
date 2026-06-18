@@ -1,5 +1,5 @@
 import ChatModel from '../models/ChatModel.js';
-import { generateWithGemini } from '../utils/generate.js';
+import { generateWithGroq } from '../utils/generate.js';
 import { getTitlePrompt, getResponsePrompt } from '../utils/prompt.js';
 
 
@@ -8,7 +8,7 @@ export const createChat = async (req, res) => {
     try {
         const { roadmapId, moduleId, userMessage } = req.body;
 
-        const raw = await generateWithGemini(getTitlePrompt(userMessage));
+        const raw = await generateWithGroq(getTitlePrompt(userMessage));
         let parsed;
         try {
             parsed = JSON.parse(raw.trim().replace(/^```json\s*|\s*```$/g, '').trim());
@@ -40,7 +40,7 @@ export const getResponse = async (req, res) => {
         if (!chat) return res.status(404).json({ success: false, message: 'Chat not found' });
 
         const context = chat.messages.slice(-8).map(m => `${m.role}: ${m.content}`).join('\n');
-        const response = await generateWithGemini(getResponsePrompt(userMessage, context));
+        const response = await generateWithGroq(getResponsePrompt(userMessage, context));
 
         chat.messages.push({ role: 'user', content: userMessage, time: Date.now() });
         chat.messages.push({ role: 'ai',   content: response,    time: Date.now() });
