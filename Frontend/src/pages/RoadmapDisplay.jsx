@@ -12,7 +12,7 @@ import {
     getUserRoadmapById, fetchNotes, saveNote,
     saveProgress, generateSubtopicSummary,
     fetchSubtopicExplanation, generateQuiz,
-    setcurrRoadmap
+    setcurrRoadmap, getQuizzes
 } from '../features/roadmapSlicer';
 
 export default function RoadmapDisplay() {
@@ -145,6 +145,21 @@ export default function RoadmapDisplay() {
             setQuizSubmitted(false);
             return;
         }
+        const existing = await dispatch(getQuizzes({
+        roadmapId: id,
+        chapterId: String(chapterId),
+        subtopicId: String(subtopicId)
+    }));
+
+        if (existing.payload?.data?.length > 0) {
+           // Quiz exists in DB — use it
+            const quiz = existing.payload.data[0].quiz;
+            setQuizModal({ chapterId, subtopicId, quiz });
+            setQuizAnswers({});
+            setQuizSubmitted(false);
+            return;
+        }
+
         const res = await dispatch(generateQuiz({
             roadmapId: id, moduleId: chapterId, subtopicId,
         }));

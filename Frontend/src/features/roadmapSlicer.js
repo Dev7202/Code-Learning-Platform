@@ -109,6 +109,16 @@ export const generateQuiz = createAsyncThunk('roadmap/generateQuiz',
     }
 );
 
+export const getQuizzes = createAsyncThunk('roadmap/getQuizzes',
+    async ({ roadmapId, chapterId, subtopicId }, { rejectWithValue }) => {
+        try {
+            const res = await axios.post(`${BASE}/api/roadmap/get-quizzes`,
+                { roadmapId, chapterId, subtopicId }, opts);
+            return res.data;
+        } catch (err) { return rejectWithValue(err.response?.data); }
+    }
+);
+
 // ─── Initial State ────────────────────────────────────────────
 
 const initialState = {
@@ -202,6 +212,11 @@ export const roadmapSlice = createSlice({
             .addCase(fetchNotes.rejected, state => {
                 state.notes_loading = false;
             })
+            .addCase(saveNote.fulfilled, (state, action) => {
+                const note = action.payload.data;
+                const key = `${note.moduleId}:${note.subtopicId}`;
+                state.notes[key] = note.content; 
+            })
 
             // Generate Subtopic Summary
             .addCase(generateSubtopicSummary.pending, (state, action) => {
@@ -234,7 +249,16 @@ export const roadmapSlice = createSlice({
                 const { moduleId, subtopicId } = action.meta.arg;
                 state.quizLoading = state.quizLoading
                     .filter(k => k !== `${moduleId}:${subtopicId}`);
-            });
+            })
+            .addCase(getQuizzes.fulfilled, (state, action) => {
+                const { chapterId, subtopicId } = action.meta.arg;
+                const key = `${chapterId}:${subtopicId}`;
+                const quizzes = action.payload.data;
+                if (quizzes && quizzes.length > 0) {
+                state.quizData[key] = quizzes[0].quiz;
+                }
+            })
+            
     },
 });
 
