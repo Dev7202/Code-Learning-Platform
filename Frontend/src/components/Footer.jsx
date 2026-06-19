@@ -20,7 +20,7 @@ export default function Footer() {
                 </div>
 
                 {/* Copyright */}
-                <p className="text-slate-400 text-sm">© 2025 CodeLearn. All rights reserved.</p>
+                <p className="text-slate-400 text-sm">© 2026 CodeLearn. All rights reserved.</p>
             </div>
         </footer>
     );

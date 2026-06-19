@@ -15,6 +15,7 @@ import ResetPassword from './pages/ResetPassword';
 import Roadmaps from './pages/Roadmaps';
 import Generator from './pages/Generator';
 import RoadmapDisplay from './pages/RoadmapDisplay';
+import ChatPage from './pages/ChatPage';
 
 function App() {
     const dispatch = useDispatch();
@@ -41,13 +42,14 @@ function App() {
             <Toaster reverseOrder={false} position="top-right" />
             <Router>
                 <Routes>
-                    <Route path="/"               element={<Home />} />
-                    <Route path="/signin"          element={<GuestRoute><Signin /></GuestRoute>} />
-                    <Route path="/signup"          element={<GuestRoute><Signup /></GuestRoute>} />
-                    <Route path="/reset-password"  element={<ResetPassword />} />
-                    <Route path="/roadmaps"        element={<ProtectedRoute><Roadmaps /></ProtectedRoute>} />
+                    <Route path="/"                element={<Home />} />
+                    <Route path="/signin"           element={<GuestRoute><Signin /></GuestRoute>} />
+                    <Route path="/signup"           element={<GuestRoute><Signup /></GuestRoute>} />
+                    <Route path="/reset-password"   element={<ResetPassword />} />
+                    <Route path="/roadmaps"         element={<ProtectedRoute><Roadmaps /></ProtectedRoute>} />
                     <Route path="/roadmap/generate" element={<ProtectedRoute><Generator /></ProtectedRoute>} />
-                    <Route path="/roadmap/:id"     element={<ProtectedRoute><RoadmapDisplay /></ProtectedRoute>} />
+                    <Route path="/roadmap/:id"      element={<ProtectedRoute><RoadmapDisplay /></ProtectedRoute>} />
+                    <Route path="/roadmap/:roadmapId/chat/:chapterId" element={<ProtectedRoute><ChatPage /></ProtectedRoute>} />
                 </Routes>
             </Router>
         </>
