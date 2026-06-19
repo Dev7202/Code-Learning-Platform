@@ -258,6 +258,11 @@ export const roadmapSlice = createSlice({
                 state.quizData[key] = quizzes[0].quiz;
                 }
             })
+            .addCase(saveProgress.fulfilled, (state, action) => {
+            const updated = action.payload.data;
+            const idx = state.userRoadmaps.findIndex(r => r._id === updated._id);
+            if (idx !== -1) state.userRoadmaps[idx] = updated;
+            })
             
     },
 });

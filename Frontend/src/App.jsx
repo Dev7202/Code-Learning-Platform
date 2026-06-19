@@ -16,6 +16,8 @@ import Roadmaps from './pages/Roadmaps';
 import Generator from './pages/Generator';
 import RoadmapDisplay from './pages/RoadmapDisplay';
 import ChatPage from './pages/ChatPage';
+import UserProfile from './pages/UserProfile';
+
 
 function App() {
     const dispatch = useDispatch();
@@ -50,6 +52,7 @@ function App() {
                     <Route path="/roadmap/generate" element={<ProtectedRoute><Generator /></ProtectedRoute>} />
                     <Route path="/roadmap/:id"      element={<ProtectedRoute><RoadmapDisplay /></ProtectedRoute>} />
                     <Route path="/roadmap/:roadmapId/chat/:chapterId" element={<ProtectedRoute><ChatPage /></ProtectedRoute>} />
+                    <Route path="/profile" element={<ProtectedRoute><UserProfile /></ProtectedRoute>} />
                 </Routes>
             </Router>
         </>
