@@ -17,6 +17,7 @@ import Generator from './pages/Generator';
 import RoadmapDisplay from './pages/RoadmapDisplay';
 import ChatPage from './pages/ChatPage';
 import UserProfile from './pages/UserProfile';
+import NotFound from './pages/NotFound';
 
 
 function App() {
@@ -53,6 +54,7 @@ function App() {
                     <Route path="/roadmap/:id"      element={<ProtectedRoute><RoadmapDisplay /></ProtectedRoute>} />
                     <Route path="/roadmap/:roadmapId/chat/:chapterId" element={<ProtectedRoute><ChatPage /></ProtectedRoute>} />
                     <Route path="/profile" element={<ProtectedRoute><UserProfile /></ProtectedRoute>} />
+                    <Route path="*" element={<NotFound />} />
                 </Routes>
             </Router>
         </>
