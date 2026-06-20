@@ -18,6 +18,7 @@ import RoadmapDisplay from './pages/RoadmapDisplay';
 import ChatPage from './pages/ChatPage';
 import UserProfile from './pages/UserProfile';
 import NotFound from './pages/NotFound';
+import IDEPage from './pages/IDEPage';
 
 
 function App() {
@@ -55,6 +56,7 @@ function App() {
                     <Route path="/roadmap/:roadmapId/chat/:chapterId" element={<ProtectedRoute><ChatPage /></ProtectedRoute>} />
                     <Route path="/profile" element={<ProtectedRoute><UserProfile /></ProtectedRoute>} />
                     <Route path="*" element={<NotFound />} />
+                    <Route path="/ide" element={<ProtectedRoute><IDEPage /></ProtectedRoute>} />
                 </Routes>
             </Router>
         </>

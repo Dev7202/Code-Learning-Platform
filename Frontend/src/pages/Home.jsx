@@ -10,7 +10,7 @@ export default function Home() {
     const features = [
         { icon: <Brain className="w-6 h-6 text-blue-400" />, title: 'AI Roadmap Generator', desc: 'Generate personalized learning paths for any programming topic.' },
         { icon: <BookOpen className="w-6 h-6 text-blue-400" />, title: 'Curated Resources', desc: 'Get articles and YouTube videos for every subtopic automatically.' },
-        { icon: <Terminal className="w-6 h-6 text-blue-400" />, title: 'Online IDE', desc: 'Write and run code in 20+ languages directly in your browser.' },
+        { icon: <Terminal className="w-6 h-6 text-blue-400" />, title: 'Online IDE', desc: 'Write and run code in 12 different languages in your browser.' },
     ];
 
     return (
