@@ -1,4 +1,6 @@
 import axios from 'axios';
+import { generateWithGroq } from '../utils/generate.js';
+import { getAnalysePrompt } from '../utils/prompt.js';
 
 // OnlineCompiler.io compiler identifiers
 export const COMPILER_NAMES = {
@@ -59,6 +61,18 @@ export const executeCode = async (req, res) => {
         });
     } catch (error) {
         console.error('OnlineCompiler error:', error.response?.data || error.message);
+        return res.status(500).json({ success: false, message: error.message });
+    }
+};
+
+export const analyse = async (req, res) => {
+    try {
+        const prompt = getAnalysePrompt(req.body.content);
+        let response = await generateWithGroq(prompt);
+        response = response.trim().replace(/^```json\s*|\s*```$/g, '').trim();
+        const data = JSON.parse(response);
+        return res.status(200).json({ success: true, data, message: 'Analysis successful' });
+    } catch (error) {
         return res.status(500).json({ success: false, message: error.message });
     }
 };
