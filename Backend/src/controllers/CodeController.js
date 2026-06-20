@@ -2,19 +2,18 @@ import axios from 'axios';
 import { generateWithGroq } from '../utils/generate.js';
 import { getAnalysePrompt } from '../utils/prompt.js';
 
-// OnlineCompiler.io compiler identifiers
 export const COMPILER_NAMES = {
-    python: 'python-3.14',
-    c: 'c-gcc',
-    cpp: 'cpp-gcc',
-    java: 'java',
-    csharp: 'csharp',
-    fsharp: 'fsharp',
-    go: 'go',
-    rust: 'rust',
-    php: 'php',
-    ruby: 'ruby',
-    haskell: 'haskell',
+    python:     'python-3.14',
+    c:          'gcc-15',
+    cpp:        'g++-15',
+    java:       'openjdk-25',
+    csharp:     'dotnet-csharp-9',
+    fsharp:     'dotnet-fsharp-9',
+    php:        'php-8.5',
+    ruby:       'ruby-4.0',
+    haskell:    'haskell-9.12',
+    go:         'go-1.26',
+    rust:       'rust-1.93',
     typescript: 'typescript-deno',
 };
 
@@ -44,7 +43,7 @@ export const executeCode = async (req, res) => {
                     'Authorization': process.env.ONLINECOMPILER_API_KEY,
                     'Content-Type': 'application/json',
                 },
-                timeout: 31000, // slightly above 30s of execution
+                timeout: 31000,
             }
         );
 
@@ -53,22 +52,25 @@ export const executeCode = async (req, res) => {
         return res.status(200).json({
             success: true,
             data: {
-                output: result.output || result.stdout || result.error || 'No output',
-                cpu: result.cpu,
+                output: result.output || '',
+                error: result.error || '',
+                status: result.status,
+                exitCode: result.exit_code,
+                time: result.time,
                 memory: result.memory,
             },
             message: 'Code executed successfully',
         });
     } catch (error) {
         console.error('OnlineCompiler error:', error.response?.data || error.message);
-        return res.status(500).json({ success: false, message: error.message });
+        return res.status(500).json({ success: false, message: error.response?.data?.error || error.message });
     }
 };
 
 export const analyse = async (req, res) => {
     try {
         const prompt = getAnalysePrompt(req.body.content);
-        let response = await generateWithGroq(prompt);
+        let response = await generateWithGemini(prompt);
         response = response.trim().replace(/^```json\s*|\s*```$/g, '').trim();
         const data = JSON.parse(response);
         return res.status(200).json({ success: true, data, message: 'Analysis successful' });
