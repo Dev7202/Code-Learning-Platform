@@ -70,7 +70,7 @@ export const executeCode = async (req, res) => {
 export const analyse = async (req, res) => {
     try {
         const prompt = getAnalysePrompt(req.body.content);
-        let response = await generateWithGemini(prompt);
+        let response = await generateWithGroq(prompt);
         response = response.trim().replace(/^```json\s*|\s*```$/g, '').trim();
         const data = JSON.parse(response);
         return res.status(200).json({ success: true, data, message: 'Analysis successful' });
